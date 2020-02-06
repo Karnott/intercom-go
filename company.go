@@ -26,7 +26,7 @@ type Company struct {
 	CreatedAt        int64                  `json:"created_at,omitempty"`
 	UpdatedAt        int64                  `json:"updated_at,omitempty"`
 	SessionCount     int64                  `json:"session_count,omitempty"`
-	MonthlySpend     int64                  `json:"monthly_spend,omitempty"`
+	MonthlySpend     int64                  `json:"monthly_spend"`
 	UserCount        int64                  `json:"user_count,omitempty"`
 	Tags             *TagList               `json:"tags,omitempty"`
 	Segments         *SegmentList           `json:"segments,omitempty"`
