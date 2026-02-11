@@ -1,0 +1,12 @@
+{
+  "type": "collection",
+  "id": "1",
+  "workspace_id": "abc123",
+  "name": "Getting Started",
+  "description": "Everything you need to get started",
+  "created_at": 1413218536,
+  "updated_at": 1423000577,
+  "url": "https://help.example.com/en/collections/1-getting-started",
+  "icon": "book",
+  "order": 1
+}

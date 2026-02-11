@@ -8,24 +8,30 @@ import (
 type Client struct {
 	// Services for interacting with various resources in Intercom.
 	Admins        AdminService
+	Articles      ArticleService
+	Collections   CollectionService
 	Companies     CompanyService
 	Contacts      ContactService
 	Conversations ConversationService
 	Events        EventService
 	Jobs          JobService
 	Messages      MessageService
+	Sections      SectionService
 	Segments      SegmentService
 	Tags          TagService
 	Users         UserService
 
 	// Mappings for resources to API constructs
 	AdminRepository        AdminRepository
+	ArticleRepository      ArticleRepository
+	CollectionRepository   CollectionRepository
 	CompanyRepository      CompanyRepository
 	ContactRepository      ContactRepository
 	ConversationRepository ConversationRepository
 	EventRepository        EventRepository
 	JobRepository          JobRepository
 	MessageRepository      MessageRepository
+	SectionRepository      SectionRepository
 	SegmentRepository      SegmentRepository
 	TagRepository          TagRepository
 	UserRepository         UserRepository
@@ -106,22 +112,28 @@ func SetHTTPClient(httpClient interfaces.HTTPClient) option {
 
 func (c *Client) setup() {
 	c.AdminRepository = AdminAPI{httpClient: c.HTTPClient}
+	c.ArticleRepository = ArticleAPI{httpClient: c.HTTPClient}
+	c.CollectionRepository = CollectionAPI{httpClient: c.HTTPClient}
 	c.CompanyRepository = CompanyAPI{httpClient: c.HTTPClient}
 	c.ContactRepository = ContactAPI{httpClient: c.HTTPClient}
 	c.ConversationRepository = ConversationAPI{httpClient: c.HTTPClient}
 	c.EventRepository = EventAPI{httpClient: c.HTTPClient}
 	c.JobRepository = JobAPI{httpClient: c.HTTPClient}
 	c.MessageRepository = MessageAPI{httpClient: c.HTTPClient}
+	c.SectionRepository = SectionAPI{httpClient: c.HTTPClient}
 	c.SegmentRepository = SegmentAPI{httpClient: c.HTTPClient}
 	c.TagRepository = TagAPI{httpClient: c.HTTPClient}
 	c.UserRepository = UserAPI{httpClient: c.HTTPClient}
 	c.Admins = AdminService{Repository: c.AdminRepository}
+	c.Articles = ArticleService{Repository: c.ArticleRepository}
+	c.Collections = CollectionService{Repository: c.CollectionRepository}
 	c.Companies = CompanyService{Repository: c.CompanyRepository}
 	c.Contacts = ContactService{Repository: c.ContactRepository}
 	c.Conversations = ConversationService{Repository: c.ConversationRepository}
 	c.Events = EventService{Repository: c.EventRepository}
 	c.Jobs = JobService{Repository: c.JobRepository}
 	c.Messages = MessageService{Repository: c.MessageRepository}
+	c.Sections = SectionService{Repository: c.SectionRepository}
 	c.Segments = SegmentService{Repository: c.SegmentRepository}
 	c.Tags = TagService{Repository: c.TagRepository}
 	c.Users = UserService{Repository: c.UserRepository}

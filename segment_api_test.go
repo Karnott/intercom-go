@@ -10,7 +10,7 @@ func TestAPIListSegments(t *testing.T) {
 	api := SegmentAPI{httpClient: &http}
 	segmentList, err := api.list()
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err)
 	}
 	if segmentList.Segments[0].ID != "5443ac9b316c12246c000005" {
 		t.Errorf("Segment list should start with segment 5443ac9b316c12246c000005, but had %s", segmentList.Segments[0].ID)
@@ -25,7 +25,7 @@ func TestAPIFindSegment(t *testing.T) {
 	api := SegmentAPI{httpClient: &http}
 	segment, err := api.find("5443ac9b316c12246c000005")
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err)
 	}
 	if segment.ID != "5443ac9b316c12246c000005" {
 		t.Errorf("Segment should have ID 5443ac9b316c12246c000005, but had %s", segment.ID)

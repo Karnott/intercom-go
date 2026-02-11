@@ -1,0 +1,37 @@
+{
+  "type": "list",
+  "pages": {
+    "type": "pages",
+    "next": null,
+    "page": 1,
+    "per_page": 15,
+    "total_pages": 1
+  },
+  "total_count": 1,
+  "data": [
+    {
+      "type": "article",
+      "id": "123456",
+      "workspace_id": "abc123",
+      "title": "Getting Started",
+      "description": "A guide to getting started",
+      "body": "<p>Welcome to our help center</p>",
+      "author_id": 1,
+      "state": "published",
+      "created_at": 1413218536,
+      "updated_at": 1423000577,
+      "url": "https://help.example.com/en/articles/123456-getting-started",
+      "parent_id": 100,
+      "parent_type": "collection",
+      "parent_ids": [100],
+      "statistics": {
+        "views": 150,
+        "conversations": 5,
+        "reactions": 10,
+        "happy_reaction_percentage": 80.0,
+        "neutral_reaction_percentage": 15.0,
+        "sad_reaction_percentage": 5.0
+      }
+    }
+  ]
+}
