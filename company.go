@@ -9,9 +9,8 @@ type CompanyService struct {
 
 // CompanyList holds a list of Companies and paging information
 type CompanyList struct {
-	Pages       PageParams
-	Companies   []Company
-	ScrollParam string `json:"scroll_param,omitempty"`
+	Pages     PageParams
+	Companies []Company
 }
 
 // Company represents a Company in Intercom
@@ -28,6 +27,9 @@ type Company struct {
 	SessionCount     int64                  `json:"session_count,omitempty"`
 	MonthlySpend     int64                  `json:"monthly_spend"`
 	UserCount        int64                  `json:"user_count,omitempty"`
+	Size             int64                  `json:"size,omitempty"`
+	Website          string                 `json:"website,omitempty"`
+	Industry         string                 `json:"industry,omitempty"`
 	Tags             *TagList               `json:"tags,omitempty"`
 	Segments         *SegmentList           `json:"segments,omitempty"`
 	Plan             *Plan                  `json:"plan,omitempty"`
@@ -96,23 +98,18 @@ func (c *CompanyService) ListByTag(tagID string, params PageParams) (CompanyList
 	return c.Repository.list(companyListParams{PageParams: params, TagID: tagID})
 }
 
-// List Company Users by ID
-func (c *CompanyService) ListUsersByID(id string, params PageParams) (UserList, error) {
-	return c.listUsersWithIdentifiers(id, companyUserListParams{PageParams: params})
+// List Company Contacts by ID
+func (c *CompanyService) ListContactsByID(id string, params PageParams) (ContactList, error) {
+	return c.listContactsWithIdentifiers(id, companyUserListParams{PageParams: params})
 }
 
-// List Company Users by CompanyID
-func (c *CompanyService) ListUsersByCompanyID(companyID string, params PageParams) (UserList, error) {
-	return c.listUsersWithIdentifiers("", companyUserListParams{CompanyID: companyID, Type: "user", PageParams: params})
+// List Company Contacts by CompanyID
+func (c *CompanyService) ListContactsByCompanyID(companyID string, params PageParams) (ContactList, error) {
+	return c.listContactsWithIdentifiers("", companyUserListParams{CompanyID: companyID, Type: "user", PageParams: params})
 }
 
-func (c *CompanyService) listUsersWithIdentifiers(id string, params companyUserListParams) (UserList, error) {
-	return c.Repository.listUsers(id, params)
-}
-
-// List all Companies for App via Scroll API
-func (c *CompanyService) Scroll(scrollParam string) (CompanyList, error) {
-	return c.Repository.scroll(scrollParam)
+func (c *CompanyService) listContactsWithIdentifiers(id string, params companyUserListParams) (ContactList, error) {
+	return c.Repository.listContacts(id, params)
 }
 
 // Save a new Company, or update an existing one.

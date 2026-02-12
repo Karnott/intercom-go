@@ -7,17 +7,23 @@ type ConversationService struct {
 
 // ConversationList is a list of Conversations
 type ConversationList struct {
-	Pages         PageParams     `json:"pages"`
+	Pages         CursorPages    `json:"pages"`
+	TotalCount    int64          `json:"total_count,omitempty"`
 	Conversations []Conversation `json:"conversations"`
 }
 
-// A Conversation represents a conversation between users and admins in Intercom.
+// A Conversation represents a conversation between contacts and admins in Intercom.
 type Conversation struct {
 	ID                  string               `json:"id"`
+	Title               string               `json:"title,omitempty"`
 	CreatedAt           int64                `json:"created_at"`
 	UpdatedAt           int64                `json:"updated_at"`
-	User                User                 `json:"user"`
-	Assignee            Admin                `json:"assignee"`
+	WaitingSince        int64                `json:"waiting_since,omitempty"`
+	SnoozedUntil        int64                `json:"snoozed_until,omitempty"`
+	Contacts            ContactList          `json:"contacts"`
+	AdminAssigneeID     int64                `json:"admin_assignee_id,omitempty"`
+	TeamAssigneeID      int64                `json:"team_assignee_id,omitempty"`
+	State               string               `json:"state,omitempty"`
 	Open                bool                 `json:"open"`
 	Read                bool                 `json:"read"`
 	ConversationMessage ConversationMessage  `json:"conversation_message"`
@@ -55,7 +61,7 @@ type ConversationPart struct {
 // SHOW_ALL shows all conversations,
 // SHOW_OPEN shows only open conversations (only valid for Admin Conversation queries)
 // SHOW_CLOSED shows only closed conversations (only valid for Admin Conversation queries)
-// SHOW_UNREAD shows only unread conversations (only valid for User Conversation queries)
+// SHOW_UNREAD shows only unread conversations (only valid for Contact Conversation queries)
 type ConversationListState int
 
 const (
@@ -86,14 +92,13 @@ func (c *ConversationService) ListByAdmin(admin *Admin, state ConversationListSt
 	return c.Repository.list(params)
 }
 
-// List Conversations by User
-func (c *ConversationService) ListByUser(user *User, state ConversationListState, pageParams PageParams) (ConversationList, error) {
+// List Conversations by Contact
+func (c *ConversationService) ListByContact(contact *Contact, state ConversationListState, pageParams PageParams) (ConversationList, error) {
 	params := ConversationListParams{
 		PageParams:     pageParams,
 		Type:           "user",
-		IntercomUserID: user.ID,
-		UserID:         user.UserID,
-		Email:          user.Email,
+		IntercomUserID: contact.ID,
+		Email:          contact.Email,
 	}
 	if state == SHOW_UNREAD {
 		params.Unread = Bool(true)
@@ -106,7 +111,7 @@ func (c *ConversationService) Find(id string) (Conversation, error) {
 	return c.Repository.find(id)
 }
 
-// Mark Conversation as read (by a User)
+// Mark Conversation as read (by a Contact)
 func (c *ConversationService) MarkRead(id string) (Conversation, error) {
 	return c.Repository.read(id)
 }
@@ -132,7 +137,6 @@ func (c *ConversationService) reply(id string, author MessagePerson, replyType R
 		reply.AdminID = addr.ID
 	} else {
 		reply.IntercomID = addr.ID
-		reply.UserID = addr.UserID
 		reply.Email = addr.Email
 	}
 	return c.Repository.reply(id, &reply)
@@ -166,7 +170,6 @@ type ConversationListParams struct {
 	Type           string `url:"type,omitempty"`
 	AdminID        string `url:"admin_id,omitempty"`
 	IntercomUserID string `url:"intercom_user_id,omitempty"`
-	UserID         string `url:"user_id,omitempty"`
 	Email          string `url:"email,omitempty"`
 	Open           *bool  `url:"open,omitempty"`
 	Unread         *bool  `url:"unread,omitempty"`

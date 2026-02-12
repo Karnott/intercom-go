@@ -2,8 +2,6 @@ package intercom
 
 import (
 	"testing"
-
-	"github.com/pborman/uuid"
 )
 
 func TestContactFindByID(t *testing.T) {
@@ -13,9 +11,9 @@ func TestContactFindByID(t *testing.T) {
 	}
 }
 
-func TestContactFindByUserID(t *testing.T) {
-	contact, _ := (&ContactService{Repository: TestContactAPI{t: t}}).FindByUserID("134d")
-	if contact.UserID != "134d" {
+func TestContactFindByExternalID(t *testing.T) {
+	contact, _ := (&ContactService{Repository: TestContactAPI{t: t}}).FindByExternalID("134d")
+	if contact.ExternalID != "134d" {
 		t.Errorf("Contact not found")
 	}
 }
@@ -47,37 +45,50 @@ func TestContactCreate(t *testing.T) {
 
 func TestContactUpdate(t *testing.T) {
 	contactService := ContactService{Repository: TestContactAPI{t: t}}
-	contact := Contact{Email: "some@email.com"}
+	contact := Contact{ID: "abc123", Email: "some@email.com"}
 	c, _ := contactService.Update(&contact)
 	if c.Email != contact.Email {
 		t.Errorf("expected returned contact to have email %s, got %s", contact.Email, c.Email)
 	}
 }
 
-func TestContactConvert(t *testing.T) {
+func TestContactMerge(t *testing.T) {
 	contactService := ContactService{Repository: TestContactAPI{t: t}}
-	contact := Contact{UserID: "aaaa", Email: "some@email.com"}
-	user := User{ID: "abc13", UserID: "c135"}
-	u, _ := contactService.Convert(&contact, &user)
-	if u.Email != contact.Email {
-		t.Errorf("expected returned user to have email %s, got %s", contact.Email, u.Email)
+	c, _ := contactService.Merge("source123", "target456")
+	if c.ID != "target456" {
+		t.Errorf("expected merged contact to have ID target456, got %s", c.ID)
 	}
-	if u.UserID != user.UserID {
-		t.Errorf("expected returned user to have user id %s, got %s", user.UserID, u.UserID)
+}
+
+func TestContactArchive(t *testing.T) {
+	contactService := ContactService{Repository: TestContactAPI{t: t}}
+	c, _ := contactService.Archive("abc123")
+	if c.ID != "abc123" {
+		t.Errorf("expected archived contact to have ID abc123, got %s", c.ID)
+	}
+}
+
+func TestContactUnarchive(t *testing.T) {
+	contactService := ContactService{Repository: TestContactAPI{t: t}}
+	c, _ := contactService.Unarchive("abc123")
+	if c.ID != "abc123" {
+		t.Errorf("expected unarchived contact to have ID abc123, got %s", c.ID)
 	}
 }
 
 func TestContactDelete(t *testing.T) {
 	contactService := ContactService{Repository: TestContactAPI{t: t}}
-	contact := Contact{UserID: "aaaa", Email: "some@email.com"}
-	contactService.Delete(&contact)
+	c, _ := contactService.Delete("abc123")
+	if c.ID != "abc123" {
+		t.Errorf("expected deleted contact to have ID abc123, got %s", c.ID)
+	}
 }
 
 func TestContactMessageAddress(t *testing.T) {
-	contact := Contact{UserID: "aaaa", Email: "some@email.com"}
+	contact := Contact{ID: "abc123", Email: "some@email.com"}
 	address := contact.MessageAddress()
-	if address.ID != "" {
-		t.Errorf("Contact address had ID")
+	if address.ID != "abc123" {
+		t.Errorf("Contact address had wrong ID")
 	}
 	if address.Type != "contact" {
 		t.Errorf("Contact address was not of type contact, was %s", address.Type)
@@ -85,37 +96,38 @@ func TestContactMessageAddress(t *testing.T) {
 	if address.Email != "some@email.com" {
 		t.Errorf("Contact address had wrong Email")
 	}
-	if address.UserID != "aaaa" {
-		t.Errorf("Contact address had wrong UserID")
-	}
 }
 
 type TestContactAPI struct {
 	t *testing.T
 }
 
-func (t TestContactAPI) find(params UserIdentifiers) (Contact, error) {
-	return Contact{ID: params.ID, Email: params.Email, UserID: params.UserID}, nil
+func (t TestContactAPI) find(params ContactIdentifiers) (Contact, error) {
+	return Contact{ID: params.ID, Email: params.ExternalID, ExternalID: params.ExternalID}, nil
 }
 
 func (t TestContactAPI) list(params contactListParams) (ContactList, error) {
-	return ContactList{Contacts: []Contact{Contact{ID: "46adad3f09126dca", Email: "jamie@example.io", UserID: "aa123"}}}, nil
-}
-
-func (t TestContactAPI) scroll(scrollParam string) (ContactList, error) {
-	return ContactList{Contacts: []Contact{Contact{ID: "46adad3f09126dca", Email: "jamie@example.io", UserID: "aa123"}}}, nil
+	return ContactList{Contacts: []Contact{{ID: "46adad3f09126dca", Email: "jamie@example.io", ExternalID: "aa123"}}}, nil
 }
 
 func (t TestContactAPI) create(c *Contact) (Contact, error) {
-	return Contact{ID: c.ID, Email: c.Email, UserID: uuid.New()}, nil
+	return Contact{ID: "new123", Email: c.Email}, nil
 }
 
 func (t TestContactAPI) update(c *Contact) (Contact, error) {
-	return Contact{ID: c.ID, Email: c.Email, UserID: c.UserID}, nil
+	return Contact{ID: c.ID, Email: c.Email, ExternalID: c.ExternalID}, nil
 }
 
-func (t TestContactAPI) convert(c *Contact, u *User) (User, error) {
-	return User{ID: u.ID, Email: c.Email, UserID: u.UserID}, nil
+func (t TestContactAPI) merge(sourceID, targetID string) (Contact, error) {
+	return Contact{ID: targetID}, nil
+}
+
+func (t TestContactAPI) archive(id string) (Contact, error) {
+	return Contact{ID: id}, nil
+}
+
+func (t TestContactAPI) unarchive(id string) (Contact, error) {
+	return Contact{ID: id}, nil
 }
 
 func (t TestContactAPI) delete(id string) (Contact, error) {

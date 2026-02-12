@@ -33,19 +33,19 @@ func TestCompanyList(t *testing.T) {
 	}
 }
 
-func TestCompanyListUsersByID(t *testing.T) {
-	companyUserList, _ := (&CompanyService{Repository: TestCompanyAPI{t: t}}).ListUsersByID("46adad3f09126dca", PageParams{})
-	users := companyUserList.Users
-	if users[0].Companies.Companies[0].ID != "46adad3f09126dca" {
-		t.Errorf("User not listed")
+func TestCompanyListContactsByID(t *testing.T) {
+	contactList, _ := (&CompanyService{Repository: TestCompanyAPI{t: t}}).ListContactsByID("46adad3f09126dca", PageParams{})
+	contacts := contactList.Contacts
+	if contacts[0].Companies.Companies[0].ID != "46adad3f09126dca" {
+		t.Errorf("Contact not listed")
 	}
 }
 
-func TestCompanyListUsersByCompanyID(t *testing.T) {
-	companyUserList, _ := (&CompanyService{Repository: TestCompanyAPI{t: t}}).ListUsersByCompanyID("134d", PageParams{})
-	users := companyUserList.Users
-	if users[0].Companies.Companies[0].CompanyID != "134d" {
-		t.Errorf("User not listed")
+func TestCompanyListContactsByCompanyID(t *testing.T) {
+	contactList, _ := (&CompanyService{Repository: TestCompanyAPI{t: t}}).ListContactsByCompanyID("134d", PageParams{})
+	contacts := contactList.Contacts
+	if contacts[0].Companies.Companies[0].CompanyID != "134d" {
+		t.Errorf("Contact not listed")
 	}
 }
 
@@ -64,15 +64,11 @@ func (t TestCompanyAPI) find(params CompanyIdentifiers) (Company, error) {
 }
 
 func (t TestCompanyAPI) list(params companyListParams) (CompanyList, error) {
-	return CompanyList{Companies: []Company{Company{ID: "46adad3f09126dca", Name: "My Co", CompanyID: "aa123"}}}, nil
+	return CompanyList{Companies: []Company{{ID: "46adad3f09126dca", Name: "My Co", CompanyID: "aa123"}}}, nil
 }
 
-func (t TestCompanyAPI) listUsers(id string, params companyUserListParams) (UserList, error) {
-	return UserList{Users: []User{User{Companies: &CompanyList{Companies: []Company{Company{ID: id, CompanyID: params.CompanyID}}}}}}, nil
-}
-
-func (t TestCompanyAPI) scroll(scrollParam string) (CompanyList, error) {
-	return CompanyList{Companies: []Company{Company{ID: "46adad3f09126dca", Name: "My Co", CompanyID: "aa123"}}}, nil
+func (t TestCompanyAPI) listContacts(id string, params companyUserListParams) (ContactList, error) {
+	return ContactList{Contacts: []Contact{{Companies: &CompanyList{Companies: []Company{{ID: id, CompanyID: params.CompanyID}}}}}}, nil
 }
 
 func (t TestCompanyAPI) save(company *Company) (Company, error) {

@@ -1,17 +1,16 @@
 {
   "type": "contact",
   "id": "54c42e7ea7a765fa7",
-  "user_id": "123",
+  "external_id": "123",
+  "role": "user",
   "email": "mycontact@example.io",
   "phone": "+1234567890",
-  "anonymous": true,
   "name": "My Contact",
-  "pseudonym": "Violet Bear",
   "avatar": {
     "type": "avatar",
     "image_url": "https://secure.gravatar.com/avatar/712360dasd24?s=24&d=identicon"
   },
-  "app_id": "z4asp0",
+  "workspace_id": "z4asp0",
   "companies": {
     "type": "company.list",
     "companies": [
@@ -29,25 +28,18 @@
       }
     ]
   },
-  "location_data": {
-    "type": "location_data",
-    "city_name": "",
-    "continent_code": "EU",
-    "country_name": "United Kingdom",
-    "latitude": 51.5,
-    "longitude": -0.12999999999999545,
-    "postal_code": "",
-    "region_name": null,
-    "timezone": "Europe/London",
-    "country_code": "GBR"
+  "location": {
+    "type": "location",
+    "country": "United Kingdom",
+    "region": "England",
+    "city": "London",
+    "country_code": "GBR",
+    "continent_code": "EU"
   },
-  "last_request_at": 1422143201,
   "created_at": 1422143102,
-  "remote_created_at": null,
-  "signed_up_at": null,
   "updated_at": 1422143201,
-  "last_seen_ip": "192.168.1.1",
-  "session_count": 4,
+  "signed_up_at": 1422143117,
+  "last_seen_at": 1422143201,
   "social_profiles": {
     "type": "social_profile.list",
     "social_profiles": [
@@ -61,7 +53,6 @@
     ]
   },
   "unsubscribed_from_emails": false,
-  "user_agent_data": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36",
   "tags": {
     "type": "tag.list",
     "tags": [

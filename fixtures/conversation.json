@@ -1,16 +1,19 @@
 {
 	"type": "conversation",
 	"id": "147",
+	"title": "Test conversation",
 	"created_at": 1400850973,
 	"updated_at": 1400857494,
-	"user": {
-		"type": "user",
-		"id": "536e564f316c83104c000020"
+	"contacts": {
+		"type": "list",
+		"data": [
+			{
+				"type": "contact",
+				"id": "536e564f316c83104c000020"
+			}
+		]
 	},
-	"assignee": {
-		"type": "admin",
-		"id": "25"
-	},
+	"admin_assignee_id": 25,
 	"conversation_message": {
 		"id" : "537e564f316c33104c010020",
 		"type": "conversation_message",
@@ -38,7 +41,7 @@
 			"notified_at": 1400857587,
 			"assigned_to": null,
 			"author": {
-				"type": "user",
+				"type": "contact",
 				"id": "536e564f316c83104c000020"
 			},
 			"attachments": []

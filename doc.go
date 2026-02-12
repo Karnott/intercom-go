@@ -6,12 +6,12 @@
 /*
 Package intercom-go provides a thin client for the Intercom API: http://developers.intercom.com/reference.
 
-The first step to using Intercom's Go client is to create a client object, using your App ID and Api Key from your [settings](http://app.intercom.io/apps/api_keys).
+The first step to using Intercom's Go client is to create a client object, using your Access Token from your [settings](http://app.intercom.io/apps/api_keys).
 
   import (
-    "github.com/karnott/intercom-go.v2"
+    "github.com/karnott/intercom-go"
   )
-  ic := intercom.NewClient("appID", "apiKey")
+  ic := intercom.NewClient("myAccessToken")
 
 The client can be configured with different options by calls to Option:
 
@@ -23,7 +23,7 @@ Errors
 
 Errors may be returned from some calls. Errors returned from the API will implement `intercom.IntercomError` and can be checked:
 
-  _, err := ic.Users.FindByEmail("doesnotexist@intercom.io")
+  _, err := ic.Contacts.FindByEmail("doesnotexist@intercom.io")
   if herr, ok := err.(intercom.IntercomError); ok && herr.GetCode() == "not_found" {
     fmt.Print(herr)
   }
@@ -35,10 +35,11 @@ The HTTP Client used by this package can be swapped out for one of your choosing
   type HTTPClient interface {
     Get(string, interface{}) ([]byte, error)
     Post(string, interface{}) ([]byte, error)
+    Patch(string, interface{}) ([]byte, error)
     Delete(string, interface{}) ([]byte, error)
   }
 
-The client will probably need to work with `appId`, `apiKey` and `baseURI` values. See the provided client for an example. Then create an Intercom Client and inject the HTTPClient:
+The client will probably need to work with `accessToken` and `baseURI` values. See the provided client for an example. Then create an Intercom Client and inject the HTTPClient:
 
   ic := intercom.Client{}
   ic.Option(intercom.SetHTTPClient(myHTTPClient))
@@ -52,12 +53,11 @@ Pagination
 
 For many resources, pagination should be applied through the use of a PageParams object passed into List() functions.
 
-
   pageParams := PageParams{
     Page: 2,
     PerPage: 10,
   }
-  ic.Users.List(pageParams)
+  ic.Contacts.List(pageParams)
 
 */
 package intercom

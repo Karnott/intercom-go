@@ -22,42 +22,42 @@ func TestReplyConversationComment(t *testing.T) {
 	testAPI := TestConversationAPI{t: t}
 	testAPI.testFunc = func(t *testing.T, reply interface{}) {
 		if reply.(*Reply).IntercomID != "abc123" {
-			t.Errorf("user id not supplied")
+			t.Errorf("contact id not supplied")
 		}
 		if reply.(*Reply).ReplyType != "comment" {
 			t.Errorf("part was not comment, was %s", reply.(*Reply).ReplyType)
 		}
 	}
 	conversationService := ConversationService{Repository: testAPI}
-	conversationService.Reply("123", &User{ID: "abc123"}, CONVERSATION_COMMENT, "Body")
+	conversationService.Reply("123", &Contact{ID: "abc123"}, CONVERSATION_COMMENT, "Body")
 }
 
 func TestReplyConversationCommentWithAttachment(t *testing.T) {
 	testAPI := TestConversationAPI{t: t}
 	testAPI.testFunc = func(t *testing.T, reply interface{}) {
 		if reply.(*Reply).IntercomID != "abc123" {
-			t.Errorf("user id not supplied")
+			t.Errorf("contact id not supplied")
 		}
 		if reply.(*Reply).ReplyType != "comment" {
 			t.Errorf("part was not comment, was %s", reply.(*Reply).ReplyType)
 		}
 	}
 	conversationService := ConversationService{Repository: testAPI}
-	conversationService.ReplyWithAttachmentURLs("123", &User{ID: "abc123"}, CONVERSATION_COMMENT, "Body", []string{"http://www.example.com/attachment.jpg"})
+	conversationService.ReplyWithAttachmentURLs("123", &Contact{ID: "abc123"}, CONVERSATION_COMMENT, "Body", []string{"http://www.example.com/attachment.jpg"})
 }
 
 func TestReplyConversationOpen(t *testing.T) {
 	testAPI := TestConversationAPI{t: t}
 	testAPI.testFunc = func(t *testing.T, reply interface{}) {
 		if reply.(*Reply).IntercomID != "abc123" {
-			t.Errorf("user id not supplied")
+			t.Errorf("contact id not supplied")
 		}
 		if reply.(*Reply).ReplyType != "open" {
 			t.Errorf("part was not open, was %s", reply.(*Reply).ReplyType)
 		}
 	}
 	conversationService := ConversationService{Repository: testAPI}
-	conversationService.Reply("123", &User{ID: "abc123"}, CONVERSATION_OPEN, "Body")
+	conversationService.Reply("123", &Contact{ID: "abc123"}, CONVERSATION_OPEN, "Body")
 }
 
 func TestReplyConversationNote(t *testing.T) {
@@ -99,7 +99,7 @@ func TestListAllConversations(t *testing.T) {
 	}
 }
 
-func TestListUserConversationsUnread(t *testing.T) {
+func TestListContactConversationsUnread(t *testing.T) {
 	testAPI := TestConversationAPI{t: t}
 	testAPI.testFunc = func(t *testing.T, params interface{}) {
 		if *params.(ConversationListParams).Unread != true {
@@ -107,14 +107,14 @@ func TestListUserConversationsUnread(t *testing.T) {
 		}
 	}
 	conversationService := ConversationService{Repository: testAPI}
-	user := User{}
-	list, _ := conversationService.ListByUser(&user, SHOW_UNREAD, PageParams{})
+	contact := Contact{}
+	list, _ := conversationService.ListByContact(&contact, SHOW_UNREAD, PageParams{})
 	if list.Conversations[0].ID != "123" {
 		t.Errorf("did not receive conversation")
 	}
 }
 
-func TestListUserConversationsAll(t *testing.T) {
+func TestListContactConversationsAll(t *testing.T) {
 	testAPI := TestConversationAPI{t: t}
 	testAPI.testFunc = func(t *testing.T, params interface{}) {
 		if params.(ConversationListParams).Unread != nil {
@@ -122,8 +122,8 @@ func TestListUserConversationsAll(t *testing.T) {
 		}
 	}
 	conversationService := ConversationService{Repository: testAPI}
-	user := User{}
-	list, _ := conversationService.ListByUser(&user, SHOW_ALL, PageParams{})
+	contact := Contact{}
+	list, _ := conversationService.ListByContact(&contact, SHOW_ALL, PageParams{})
 	if list.Conversations[0].ID != "123" {
 		t.Errorf("did not receive conversation")
 	}
@@ -168,7 +168,7 @@ func (t TestConversationAPI) list(params ConversationListParams) (ConversationLi
 	if t.testFunc != nil {
 		t.testFunc(t.t, params)
 	}
-	return ConversationList{Conversations: []Conversation{Conversation{ID: "123"}}, Pages: PageParams{Page: 1, PerPage: 20}}, nil
+	return ConversationList{Conversations: []Conversation{{ID: "123"}}, Pages: CursorPages{Page: 1, PerPage: 20}}, nil
 }
 
 func (t TestConversationAPI) find(id string) (Conversation, error) {

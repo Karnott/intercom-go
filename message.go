@@ -10,7 +10,7 @@ type MessageService struct {
 	Repository MessageRepository
 }
 
-// MessageTemplate determines the template used for email messages to Users or Contacts (plain or personal)
+// MessageTemplate determines the template used for email messages to Contacts (plain or personal)
 type MessageTemplate int
 
 const (
@@ -44,7 +44,7 @@ func (template *MessageTemplate) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// MessageRequest represents a Message to be sent through Intercom from/to an Admin, User, or Contact.
+// MessageRequest represents a Message to be sent through Intercom from/to an Admin or Contact.
 type MessageRequest struct {
 	MessageType string         `json:"message_type,omitempty"`
 	Subject     string         `json:"subject,omitempty"`
@@ -54,7 +54,7 @@ type MessageRequest struct {
 	To          MessageAddress `json:"to,omitempty"`
 }
 
-// MessageResponse represents a Message to be sent through Intercom from/to an Admin, User, or Contact.
+// MessageResponse represents a Message response from Intercom.
 type MessageResponse struct {
 	MessageType string          `json:"message_type,omitempty"`
 	ID          string          `json:"id"`
@@ -84,8 +84,8 @@ func NewInAppMessage(from, to MessagePerson, body string) MessageRequest {
 	return MessageRequest{MessageType: "inapp", From: from.MessageAddress(), To: to.MessageAddress(), Body: body}
 }
 
-// NewUserMessage creates a new *Message from a User.
-func NewUserMessage(from MessagePerson, body string) MessageRequest {
+// NewContactMessage creates a new *Message from a Contact.
+func NewContactMessage(from MessagePerson, body string) MessageRequest {
 	return MessageRequest{MessageType: "inapp", From: from.MessageAddress(), Body: body}
 }
 
@@ -95,8 +95,7 @@ type MessagePerson interface {
 }
 
 type MessageAddress struct {
-	Type   string `json:"type,omitempty"`
-	ID     string `json:"id,omitempty"`
-	Email  string `json:"email,omitempty"`
-	UserID string `json:"user_id,omitempty"`
+	Type  string `json:"type,omitempty"`
+	ID    string `json:"id,omitempty"`
+	Email string `json:"email,omitempty"`
 }

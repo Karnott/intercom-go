@@ -24,19 +24,28 @@ func TestCompanyAPIFind(t *testing.T) {
 	if company.CustomAttributes["big_company"] != true {
 		t.Errorf("CustomAttributes was %v, expected %v", company.CustomAttributes, map[string]interface{}{"big_company": true})
 	}
+	if company.Size != 50 {
+		t.Errorf("Size was %d, expected 50", company.Size)
+	}
+	if company.Website != "https://example.com" {
+		t.Errorf("Website was %s, expected https://example.com", company.Website)
+	}
+	if company.Industry != "Technology" {
+		t.Errorf("Industry was %s, expected Technology", company.Industry)
+	}
 }
 
-func TestCompanyAPIListUsers(t *testing.T) {
-	http := TestCompanyHTTPClient{fixtureFilename: "fixtures/users.json", expectedURI: "/companies/54c42ed71623d8caa/users", t: t}
+func TestCompanyAPIListContacts(t *testing.T) {
+	http := TestCompanyHTTPClient{fixtureFilename: "fixtures/contacts.json", expectedURI: "/companies/54c42ed71623d8caa/contacts", t: t}
 	api := CompanyAPI{httpClient: &http}
 	params := companyUserListParams{Type: "user"}
-	companyUserList, err := api.listUsers("54c42ed71623d8caa", params)
+	contactList, err := api.listContacts("54c42ed71623d8caa", params)
 	if err != nil {
 		t.Errorf("Error parsing fixture %s", err)
 	}
-	users := companyUserList.Users
-	if users[0].ID != "54c42e7ea7a765fa7" {
-		t.Errorf("ID was %s, expected 54c42e7ea7a765fa7", users[0].ID)
+	contacts := contactList.Contacts
+	if contacts[0].ID != "54c42e7ea7a765fa7" {
+		t.Errorf("ID was %s, expected 54c42e7ea7a765fa7", contacts[0].ID)
 	}
 }
 

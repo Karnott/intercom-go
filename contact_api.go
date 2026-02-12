@@ -10,12 +10,13 @@ import (
 
 // ContactRepository defines the interface for working with Contacts through the API.
 type ContactRepository interface {
-	find(UserIdentifiers) (Contact, error)
+	find(ContactIdentifiers) (Contact, error)
 	list(contactListParams) (ContactList, error)
-	scroll(scrollParam string) (ContactList, error)
 	create(*Contact) (Contact, error)
 	update(*Contact) (Contact, error)
-	convert(*Contact, *User) (User, error)
+	merge(sourceID, targetID string) (Contact, error)
+	archive(id string) (Contact, error)
+	unarchive(id string) (Contact, error)
 	delete(id string) (Contact, error)
 }
 
@@ -24,15 +25,15 @@ type ContactAPI struct {
 	httpClient interfaces.HTTPClient
 }
 
-func (api ContactAPI) find(params UserIdentifiers) (Contact, error) {
+func (api ContactAPI) find(params ContactIdentifiers) (Contact, error) {
 	return unmarshalToContact(api.getClientForFind(params))
 }
 
-func (api ContactAPI) getClientForFind(params UserIdentifiers) ([]byte, error) {
+func (api ContactAPI) getClientForFind(params ContactIdentifiers) ([]byte, error) {
 	switch {
 	case params.ID != "":
 		return api.httpClient.Get(fmt.Sprintf("/contacts/%s", params.ID), nil)
-	case params.UserID != "":
+	case params.ExternalID != "":
 		return api.httpClient.Get("/contacts", params)
 	}
 	return nil, errors.New("Missing Contact Identifier")
@@ -48,35 +49,32 @@ func (api ContactAPI) list(params contactListParams) (ContactList, error) {
 	return contactList, err
 }
 
-func (api ContactAPI) scroll(scrollParam string) (ContactList, error) {
-	contactList := ContactList{}
-	params := scrollParams{ScrollParam: scrollParam}
-	data, err := api.httpClient.Get("/contacts/scroll", params)
-	if err != nil {
-		return contactList, err
-	}
-	err = json.Unmarshal(data, &contactList)
-	return contactList, err
-}
-
 func (api ContactAPI) create(contact *Contact) (Contact, error) {
-	requestContact := api.buildRequestContact(contact)
-	return unmarshalToContact(api.httpClient.Post("/contacts", &requestContact))
+	return unmarshalToContact(api.httpClient.Post("/contacts", contact))
 }
 
 func (api ContactAPI) update(contact *Contact) (Contact, error) {
-	requestContact := api.buildRequestContact(contact)
-	return unmarshalToContact(api.httpClient.Post("/contacts", &requestContact))
+	if contact.ID == "" {
+		return Contact{}, errors.New("Missing Contact ID for update")
+	}
+	return unmarshalToContact(api.httpClient.Patch(fmt.Sprintf("/contacts/%s", contact.ID), contact))
 }
 
-func (api ContactAPI) convert(contact *Contact, user *User) (User, error) {
-	cr := convertRequest{Contact: api.buildRequestContact(contact), User: requestUser{
-		ID:         user.ID,
-		UserID:     user.UserID,
-		Email:      user.Email,
-		SignedUpAt: user.SignedUpAt,
-	}}
-	return unmarshalToUser(api.httpClient.Post("/contacts/convert", &cr))
+type mergeRequest struct {
+	From string `json:"from"`
+	Into string `json:"into"`
+}
+
+func (api ContactAPI) merge(sourceID, targetID string) (Contact, error) {
+	return unmarshalToContact(api.httpClient.Post("/contacts/merge", &mergeRequest{From: sourceID, Into: targetID}))
+}
+
+func (api ContactAPI) archive(id string) (Contact, error) {
+	return unmarshalToContact(api.httpClient.Post(fmt.Sprintf("/contacts/%s/archive", id), nil))
+}
+
+func (api ContactAPI) unarchive(id string) (Contact, error) {
+	return unmarshalToContact(api.httpClient.Post(fmt.Sprintf("/contacts/%s/unarchive", id), nil))
 }
 
 func (api ContactAPI) delete(id string) (Contact, error) {
@@ -89,11 +87,6 @@ func (api ContactAPI) delete(id string) (Contact, error) {
 	return contact, err
 }
 
-type convertRequest struct {
-	User    requestUser `json:"user"`
-	Contact requestUser `json:"contact"`
-}
-
 func unmarshalToContact(data []byte, err error) (Contact, error) {
 	savedContact := Contact{}
 	if err != nil {
@@ -101,28 +94,4 @@ func unmarshalToContact(data []byte, err error) (Contact, error) {
 	}
 	err = json.Unmarshal(data, &savedContact)
 	return savedContact, err
-}
-
-func (api ContactAPI) buildRequestContact(contact *Contact) requestUser {
-	return requestUser{
-		ID:                     contact.ID,
-		Email:                  contact.Email,
-		Phone:                  contact.Phone,
-		UserID:                 contact.UserID,
-		Name:                   contact.Name,
-		LastRequestAt:          contact.LastRequestAt,
-		LastSeenIP:             contact.LastSeenIP,
-		UnsubscribedFromEmails: contact.UnsubscribedFromEmails,
-		Companies:              api.getCompaniesToSendFromContact(contact),
-		CustomAttributes:       contact.CustomAttributes,
-		UpdateLastRequestAt:    contact.UpdateLastRequestAt,
-		NewSession:             contact.NewSession,
-	}
-}
-
-func (api ContactAPI) getCompaniesToSendFromContact(contact *Contact) []UserCompany {
-	if contact.Companies == nil {
-		return []UserCompany{}
-	}
-	return RequestUserMapper{}.MakeUserCompaniesFromCompanies(contact.Companies.Companies)
 }
