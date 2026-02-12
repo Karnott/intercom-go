@@ -11,6 +11,9 @@
   "monthly_spend": 2000,
   "session_count": 247,
   "user_count": 13,
+  "size": 50,
+  "website": "https://example.com",
+  "industry": "Technology",
   "tags": {
     "type": "tag.list",
     "tags": [

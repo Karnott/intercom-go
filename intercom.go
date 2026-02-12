@@ -16,10 +16,8 @@ type Client struct {
 	Events        EventService
 	Jobs          JobService
 	Messages      MessageService
-	Sections      SectionService
 	Segments      SegmentService
 	Tags          TagService
-	Users         UserService
 
 	// Mappings for resources to API constructs
 	AdminRepository        AdminRepository
@@ -31,16 +29,11 @@ type Client struct {
 	EventRepository        EventRepository
 	JobRepository          JobRepository
 	MessageRepository      MessageRepository
-	SectionRepository      SectionRepository
 	SegmentRepository      SegmentRepository
 	TagRepository          TagRepository
-	UserRepository         UserRepository
 
-	// AppID For Intercom.
-	AppID string
-
-	// APIKey for Intercom's API. See http://app.intercom.io/apps/api_keys.
-	APIKey string
+	// AccessToken for Intercom's API (Bearer token).
+	AccessToken string
 
 	// HTTP Client used to interact with the API.
 	HTTPClient interfaces.HTTPClient
@@ -52,12 +45,12 @@ type Client struct {
 
 const (
 	defaultBaseURI = "https://api.intercom.io"
-	clientVersion  = "2.0.0"
+	clientVersion  = "2.15.0"
 )
 
 type option func(c *Client) option
 
-// Set Options on the Intercom Client, see TraceHTTP, BaseURI and SetHTTPClient.
+// Option sets Options on the Intercom Client, see TraceHTTP, BaseURI and SetHTTPClient.
 func (c *Client) Option(opts ...option) (previous option) {
 	for _, opt := range opts {
 		previous = opt(c)
@@ -66,16 +59,16 @@ func (c *Client) Option(opts ...option) (previous option) {
 }
 
 // NewClient returns a new Intercom API client, configured with the default HTTPClient.
-func NewClient(appID, apiKey string) *Client {
-	intercom := Client{AppID: appID, APIKey: apiKey, baseURI: defaultBaseURI, debug: false, clientVersion: clientVersion}
-	intercom.HTTPClient = interfaces.NewIntercomHTTPClient(intercom.AppID, intercom.APIKey, &intercom.baseURI, &intercom.clientVersion, &intercom.debug)
+func NewClient(accessToken string) *Client {
+	intercom := Client{AccessToken: accessToken, baseURI: defaultBaseURI, debug: false, clientVersion: clientVersion}
+	intercom.HTTPClient = interfaces.NewIntercomHTTPClient(intercom.AccessToken, &intercom.baseURI, &intercom.clientVersion, &intercom.debug)
 	intercom.setup()
 	return &intercom
 }
 
-// NewClientWithHTTPClient returns a new Intercom API client, configured with the supplied HTTPClient interface
-func NewClientWithHTTPClient(appID, apiKey string, httpClient interfaces.HTTPClient) *Client {
-	intercom := Client{AppID: appID, APIKey: apiKey, baseURI: defaultBaseURI, debug: false, clientVersion: clientVersion, HTTPClient: httpClient}
+// NewClientWithHTTPClient returns a new Intercom API client, configured with the supplied HTTPClient interface.
+func NewClientWithHTTPClient(accessToken string, httpClient interfaces.HTTPClient) *Client {
+	intercom := Client{AccessToken: accessToken, baseURI: defaultBaseURI, debug: false, clientVersion: clientVersion, HTTPClient: httpClient}
 	intercom.setup()
 	return &intercom
 }
@@ -120,10 +113,8 @@ func (c *Client) setup() {
 	c.EventRepository = EventAPI{httpClient: c.HTTPClient}
 	c.JobRepository = JobAPI{httpClient: c.HTTPClient}
 	c.MessageRepository = MessageAPI{httpClient: c.HTTPClient}
-	c.SectionRepository = SectionAPI{httpClient: c.HTTPClient}
 	c.SegmentRepository = SegmentAPI{httpClient: c.HTTPClient}
 	c.TagRepository = TagAPI{httpClient: c.HTTPClient}
-	c.UserRepository = UserAPI{httpClient: c.HTTPClient}
 	c.Admins = AdminService{Repository: c.AdminRepository}
 	c.Articles = ArticleService{Repository: c.ArticleRepository}
 	c.Collections = CollectionService{Repository: c.CollectionRepository}
@@ -133,8 +124,6 @@ func (c *Client) setup() {
 	c.Events = EventService{Repository: c.EventRepository}
 	c.Jobs = JobService{Repository: c.JobRepository}
 	c.Messages = MessageService{Repository: c.MessageRepository}
-	c.Sections = SectionService{Repository: c.SectionRepository}
 	c.Segments = SegmentService{Repository: c.SegmentRepository}
 	c.Tags = TagService{Repository: c.TagRepository}
-	c.Users = UserService{Repository: c.UserRepository}
 }

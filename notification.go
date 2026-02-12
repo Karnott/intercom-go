@@ -14,7 +14,7 @@ type Notification struct {
 	FirstSentAt      int64         `json:"first_sent_at,omitempty"`
 	RawData          *Data         `json:"data,omitempty"`
 	Conversation     *Conversation `json:"-"`
-	User             *User         `json:"-"`
+	Contact          *Contact      `json:"-"`
 	Tag              *Tag          `json:"-"`
 	Company          *Company      `json:"-"`
 	Event            *Event        `json:"-"`
@@ -48,19 +48,34 @@ func NewNotification(r io.Reader) (*Notification, error) {
 		c := &Conversation{}
 		json.Unmarshal(notification.RawData.Item, c)
 		notification.Conversation = c
-	case "user.created",
+	case "contact.created",
+		"contact.deleted",
+		"contact.unsubscribed",
+		"contact.email.updated",
+		"contact.user.created",
+		"contact.lead.created",
+		"contact.lead.updated",
+		"user.created",
 		"user.deleted",
 		"user.unsubscribed",
 		"user.email.updated":
-		u := &User{}
-		json.Unmarshal(notification.RawData.Item, u)
-		notification.User = u
-	case "user.tag.created",
+		ct := &Contact{}
+		json.Unmarshal(notification.RawData.Item, ct)
+		notification.Contact = ct
+	case "contact.tag.created",
+		"contact.tag.deleted",
+		"contact.user.tag.created",
+		"contact.user.tag.deleted",
+		"contact.lead.tag.created",
+		"contact.lead.tag.deleted",
+		"user.tag.created",
 		"user.tag.deleted":
 		t := &Tag{}
 		json.Unmarshal(notification.RawData.Item, t)
 		notification.Tag = t
-	case "company.created":
+	case "company.created",
+		"company.updated",
+		"company.deleted":
 		c := &Company{}
 		json.Unmarshal(notification.RawData.Item, c)
 		notification.Company = c

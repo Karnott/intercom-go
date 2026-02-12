@@ -1,18 +1,29 @@
 {
 	"type": "conversation.list",
+	"total_count": 1,
+	"pages": {
+		"type": "pages",
+		"page": 1,
+		"per_page": 20,
+		"total_pages": 1,
+		"next": null
+	},
 	"conversations": [{
 		"type": "conversation",
 		"id": "147",
+		"title": "Test conversation",
 		"created_at": 1400850973,
 		"updated_at": 1400857494,
-		"user": {
-			"type": "user",
-			"id": "536e564f316c83104c000020"
+		"contacts": {
+			"type": "list",
+			"data": [
+				{
+					"type": "contact",
+					"id": "536e564f316c83104c000020"
+				}
+			]
 		},
-		"assignee": {
-			"type": "admin",
-			"id": "25"
-		},
+		"admin_assignee_id": 25,
 		"conversation_message": {
 			"type": "conversation_message",
 			"subject": "",
@@ -38,7 +49,7 @@
 				"notified_at": 1400857587,
 				"assigned_to": null,
 				"author": {
-					"type": "user",
+					"type": "contact",
 					"id": "536e564f316c83104c000020"
 				},
 				"attachments": []

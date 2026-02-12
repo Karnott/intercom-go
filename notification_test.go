@@ -47,8 +47,8 @@ func TestParsingFromReader(t *testing.T) {
 	if n.Tag != nil {
 		t.Errorf("Notification should not have Tag")
 	}
-	if n.User != nil {
-		t.Errorf("Notification shoud not have User")
+	if n.Contact != nil {
+		t.Errorf("Notification should not have Contact")
 	}
 }
 
@@ -87,8 +87,12 @@ func TestParsingConverationFromReader(t *testing.T) {
 	}
 }
 
-func TestParsingUserFromReader(t *testing.T) {
+func TestParsingContactFromReader(t *testing.T) {
 	topics := []string{
+		"contact.created",
+		"contact.deleted",
+		"contact.unsubscribed",
+		"contact.email.updated",
 		"user.created",
 		"user.deleted",
 		"user.unsubscribed",
@@ -96,7 +100,7 @@ func TestParsingUserFromReader(t *testing.T) {
 	}
 
 	for _, topic := range topics {
-		payload, _ := ioutil.ReadFile("fixtures/user.json")
+		payload, _ := ioutil.ReadFile("fixtures/contact.json")
 		r := strings.NewReader(fmt.Sprintf(`{
 			"topic": "%s",
 			"data": {
@@ -104,14 +108,16 @@ func TestParsingUserFromReader(t *testing.T) {
 			}
 		}`, topic, string(payload)))
 		n, _ := NewNotification(r)
-		if n.User == nil {
-			t.Errorf("Notification did not have User")
+		if n.Contact == nil {
+			t.Errorf("Notification did not have Contact for topic %s", topic)
 		}
 	}
 }
 
 func TestParsingTagFromReader(t *testing.T) {
 	topics := []string{
+		"contact.tag.created",
+		"contact.tag.deleted",
 		"user.tag.created",
 		"user.tag.deleted",
 	}

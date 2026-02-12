@@ -8,14 +8,14 @@ func TestNewJob(t *testing.T) {
 		if job.Items[0].Method != JOB_POST.String() {
 			repo.t.Errorf("Wrong job method")
 		}
-		u := job.Items[0].Data.(*User)
-		if u.Email != "foo@bar.com" {
-			repo.t.Errorf("Wrong user email")
+		c := job.Items[0].Data.(*Contact)
+		if c.Email != "foo@bar.com" {
+			repo.t.Errorf("Wrong contact email")
 		}
 	}
-	user := User{Email: "foo@bar.com"}
+	contact := Contact{Email: "foo@bar.com"}
 	js := JobService{Repository: repo}
-	js.NewUserJob(NewUserJobItem(&user, JOB_POST))
+	js.NewUserJob(NewContactJobItem(&contact, JOB_POST))
 }
 
 func TestAppendJob(t *testing.T) {
@@ -27,14 +27,14 @@ func TestAppendJob(t *testing.T) {
 		if job.Items[0].Method != JOB_POST.String() {
 			repo.t.Errorf("Wrong job method")
 		}
-		u := job.Items[0].Data.(*User)
-		if u.Email != "foo@bar.com" {
-			repo.t.Errorf("Wrong user email")
+		c := job.Items[0].Data.(*Contact)
+		if c.Email != "foo@bar.com" {
+			repo.t.Errorf("Wrong contact email")
 		}
 	}
-	user := User{Email: "foo@bar.com"}
+	contact := Contact{Email: "foo@bar.com"}
 
-	js.AppendUsers(newJob.ID, NewUserJobItem(&user, JOB_POST))
+	js.AppendUsers(newJob.ID, NewContactJobItem(&contact, JOB_POST))
 }
 
 type TestJobRepository struct {

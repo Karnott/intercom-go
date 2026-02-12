@@ -12,8 +12,7 @@ import (
 type CompanyRepository interface {
 	find(CompanyIdentifiers) (Company, error)
 	list(companyListParams) (CompanyList, error)
-	listUsers(string, companyUserListParams) (UserList, error)
-	scroll(scrollParam string) (CompanyList, error)
+	listContacts(string, companyUserListParams) (ContactList, error)
 	save(*Company) (Company, error)
 }
 
@@ -62,35 +61,24 @@ func (api CompanyAPI) list(params companyListParams) (CompanyList, error) {
 	return companyList, err
 }
 
-func (api CompanyAPI) listUsers(id string, params companyUserListParams) (UserList, error) {
-	companyUserList := UserList{}
-	data, err := api.getClientForListUsers(id, params)
+func (api CompanyAPI) listContacts(id string, params companyUserListParams) (ContactList, error) {
+	contactList := ContactList{}
+	data, err := api.getClientForListContacts(id, params)
 	if err != nil {
-		return companyUserList, err
+		return contactList, err
 	}
-	err = json.Unmarshal(data, &companyUserList)
-	return companyUserList, err
+	err = json.Unmarshal(data, &contactList)
+	return contactList, err
 }
 
-func (api CompanyAPI) getClientForListUsers(id string, params companyUserListParams) ([]byte, error) {
+func (api CompanyAPI) getClientForListContacts(id string, params companyUserListParams) ([]byte, error) {
 	switch {
 	case id != "":
-		return api.httpClient.Get(fmt.Sprintf("/companies/%s/users", id), params)
+		return api.httpClient.Get(fmt.Sprintf("/companies/%s/contacts", id), params)
 	case params.CompanyID != "", params.Type == "user":
 		return api.httpClient.Get("/companies", params)
 	}
 	return nil, errors.New("Missing Company Identifier")
-}
-
-func (api CompanyAPI) scroll(scrollParam string) (CompanyList, error) {
-	companyList := CompanyList{}
-	params := scrollParams{ScrollParam: scrollParam}
-	data, err := api.httpClient.Get("/companies/scroll", params)
-	if err != nil {
-		return companyList, err
-	}
-	err = json.Unmarshal(data, &companyList)
-	return companyList, err
 }
 
 func (api CompanyAPI) save(company *Company) (Company, error) {

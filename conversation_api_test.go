@@ -21,6 +21,18 @@ func TestConversationFind(t *testing.T) {
 	if convo.ConversationMessage.URL != "/the/page/url.html" {
 		t.Errorf("Conversation URL not retrieved, %s", convo.ConversationMessage.URL)
 	}
+	if convo.Title != "Test conversation" {
+		t.Errorf("Title was %s, expected Test conversation", convo.Title)
+	}
+	if convo.AdminAssigneeID != 25 {
+		t.Errorf("AdminAssigneeID was %d, expected 25", convo.AdminAssigneeID)
+	}
+	if len(convo.Contacts.Contacts) != 1 {
+		t.Errorf("Expected 1 contact, got %d", len(convo.Contacts.Contacts))
+	}
+	if convo.Contacts.Contacts[0].ID != "536e564f316c83104c000020" {
+		t.Errorf("Contact ID was %s, expected 536e564f316c83104c000020", convo.Contacts.Contacts[0].ID)
+	}
 }
 
 func TestConversationRead(t *testing.T) {
@@ -84,8 +96,11 @@ func TestConversationListAll(t *testing.T) {
 	if convos.Conversations[0].ID != "147" {
 		t.Errorf("Conversation not retrieved")
 	}
-	if convos.Conversations[0].User.ID != "536e564f316c83104c000020" {
-		t.Errorf("Conversation user not retrieved")
+	if len(convos.Conversations[0].Contacts.Contacts) != 1 {
+		t.Errorf("Conversation contacts not retrieved")
+	}
+	if convos.Conversations[0].Contacts.Contacts[0].ID != "536e564f316c83104c000020" {
+		t.Errorf("Conversation contact not retrieved")
 	}
 	if convos.Conversations[0].ConversationMessage.Author.ID != "25" {
 		t.Errorf("Conversation Message Author not retrieved")
@@ -95,6 +110,18 @@ func TestConversationListAll(t *testing.T) {
 	}
 	if convos.Conversations[0].TagList != nil {
 		t.Errorf("Conversation Tags should be nil")
+	}
+	if convos.Pages.Page != 1 {
+		t.Errorf("Pages.Page was %d, expected 1", convos.Pages.Page)
+	}
+	if convos.Pages.PerPage != 20 {
+		t.Errorf("Pages.PerPage was %d, expected 20", convos.Pages.PerPage)
+	}
+	if convos.TotalCount != 1 {
+		t.Errorf("TotalCount was %d, expected 1", convos.TotalCount)
+	}
+	if convos.Conversations[0].Title != "Test conversation" {
+		t.Errorf("Conversation title was %s, expected Test conversation", convos.Conversations[0].Title)
 	}
 }
 

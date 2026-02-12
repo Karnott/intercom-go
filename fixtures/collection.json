@@ -8,5 +8,6 @@
   "updated_at": 1423000577,
   "url": "https://help.example.com/en/collections/1-getting-started",
   "icon": "book",
-  "order": 1
+  "order": 1,
+  "parent_id": null
 }

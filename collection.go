@@ -18,7 +18,8 @@ type Collection struct {
 	UpdatedAt   int64  `json:"updated_at,omitempty"`
 	URL         string `json:"url,omitempty"`
 	Icon        string `json:"icon,omitempty"`
-	Order       int64  `json:"order,omitempty"`
+	Order       int64   `json:"order,omitempty"`
+	ParentID    *string `json:"parent_id"`
 }
 
 // CollectionList holds a list of Collections and pagination info.

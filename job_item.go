@@ -7,10 +7,10 @@ type JobItem struct {
 	Data     interface{} `json:"data"`
 }
 
-// NewUserJobItem creates a JobItem that holds an User.
+// NewContactJobItem creates a JobItem that holds a Contact.
 // It can take either a JOB_POST (for updates) or JOB_DELETE (for deletes) method.
-func NewUserJobItem(user *User, method JobItemMethod) *JobItem {
-	return &JobItem{Method: method.String(), DataType: "user", Data: user}
+func NewContactJobItem(contact *Contact, method JobItemMethod) *JobItem {
+	return &JobItem{Method: method.String(), DataType: "contact", Data: contact}
 }
 
 // NewEventJobItem creates a JobItem that holds an Event.

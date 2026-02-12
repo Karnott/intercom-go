@@ -19,20 +19,13 @@ type ExportArticle struct {
 	URL         string `json:"url"`
 }
 
-type ExportSection struct {
-	ID       string          `json:"id"`
-	Name     string          `json:"name"`
-	URL      string          `json:"url,omitempty"`
-	Articles []ExportArticle `json:"articles"`
-}
-
 type ExportCollection struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description,omitempty"`
-	URL         string          `json:"url,omitempty"`
-	Sections    []ExportSection `json:"sections,omitempty"`
-	Articles    []ExportArticle `json:"articles,omitempty"`
+	ID             string             `json:"id"`
+	Name           string             `json:"name"`
+	Description    string             `json:"description,omitempty"`
+	URL            string             `json:"url,omitempty"`
+	SubCollections []ExportCollection `json:"sub_collections,omitempty"`
+	Articles       []ExportArticle    `json:"articles,omitempty"`
 }
 
 func main() {
@@ -41,21 +34,28 @@ func main() {
 		log.Fatal("INTERCOM_ACCESS_TOKEN environment variable is required")
 	}
 
-	ic := intercom.NewClient(token, "")
+	ic := intercom.NewClient(token)
 
 	collections := fetchAllCollections(ic)
 	fmt.Fprintf(os.Stderr, "Fetched %d collections\n", len(collections))
 
-	sections := fetchAllSections(ic)
-	fmt.Fprintf(os.Stderr, "Fetched %d sections\n", len(sections))
-
 	articles := fetchAllArticles(ic)
 	fmt.Fprintf(os.Stderr, "Fetched %d articles\n", len(articles))
 
-	// Group articles by (parent_type, parent_id)
-	collectionArticles := map[string][]ExportArticle{}
-	sectionArticles := map[string][]ExportArticle{}
+	// Separate top-level collections from sub-collections (formerly sections).
+	// In API v2.10+, sections are collections with a non-null parent_id.
+	topLevel := []intercom.Collection{}
+	subByParent := map[string][]intercom.Collection{}
+	for _, c := range collections {
+		if c.ParentID == nil {
+			topLevel = append(topLevel, c)
+		} else {
+			subByParent[*c.ParentID] = append(subByParent[*c.ParentID], c)
+		}
+	}
 
+	// Group articles by parent_id
+	articlesByParent := map[string][]ExportArticle{}
 	for _, a := range articles {
 		if a.State != "published" {
 			continue
@@ -69,39 +69,28 @@ func main() {
 			URL:         a.URL,
 		}
 		parentID := strconv.FormatInt(a.ParentID, 10)
-		switch a.ParentType {
-		case "section":
-			sectionArticles[parentID] = append(sectionArticles[parentID], ea)
-		default:
-			collectionArticles[parentID] = append(collectionArticles[parentID], ea)
-		}
-	}
-
-	// Group sections by parent collection
-	collectionSections := map[string][]ExportSection{}
-	for _, s := range sections {
-		es := ExportSection{
-			ID:       s.ID,
-			Name:     s.Name,
-			URL:      s.URL,
-			Articles: sectionArticles[s.ID],
-		}
-		if es.Articles == nil {
-			es.Articles = []ExportArticle{}
-		}
-		collectionSections[strconv.FormatInt(s.ParentID, 10)] = append(collectionSections[strconv.FormatInt(s.ParentID, 10)], es)
+		articlesByParent[parentID] = append(articlesByParent[parentID], ea)
 	}
 
 	// Build the tree
-	tree := make([]ExportCollection, 0, len(collections))
-	for _, c := range collections {
+	tree := make([]ExportCollection, 0, len(topLevel))
+	for _, c := range topLevel {
 		ec := ExportCollection{
 			ID:          c.ID,
 			Name:        c.Name,
 			Description: c.Description,
 			URL:         c.URL,
-			Sections:    collectionSections[c.ID],
-			Articles:    collectionArticles[c.ID],
+			Articles:    articlesByParent[c.ID],
+		}
+		// Add sub-collections (formerly sections)
+		for _, sub := range subByParent[c.ID] {
+			eSub := ExportCollection{
+				ID:       sub.ID,
+				Name:     sub.Name,
+				URL:      sub.URL,
+				Articles: articlesByParent[sub.ID],
+			}
+			ec.SubCollections = append(ec.SubCollections, eSub)
 		}
 		tree = append(tree, ec)
 	}
@@ -130,23 +119,6 @@ func fetchAllCollections(ic *intercom.Client) []intercom.Collection {
 			log.Fatalf("Error fetching collections (page %d): %v", page, err)
 		}
 		all = append(all, list.Collections...)
-		if page >= list.Pages.TotalPages {
-			break
-		}
-		page++
-	}
-	return all
-}
-
-func fetchAllSections(ic *intercom.Client) []intercom.Section {
-	var all []intercom.Section
-	page := int64(1)
-	for {
-		list, err := ic.Sections.List(intercom.PageParams{Page: page, PerPage: 50})
-		if err != nil {
-			log.Fatalf("Error fetching sections (page %d): %v", page, err)
-		}
-		all = append(all, list.Sections...)
 		if page >= list.Pages.TotalPages {
 			break
 		}
