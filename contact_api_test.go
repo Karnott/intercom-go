@@ -26,6 +26,21 @@ func TestContactAPIFind(t *testing.T) {
 	}
 }
 
+func TestContactAPIFindByExternalID(t *testing.T) {
+	http := TestContactHTTPClient{fixtureFilename: "fixtures/contacts.json", expectedURI: "/contacts/search", t: t}
+	api := ContactAPI{httpClient: &http}
+	contact, err := api.find(ContactIdentifiers{ExternalID: "123"})
+	if err != nil {
+		t.Errorf("Error parsing fixture %s", err)
+	}
+	if contact.ID != "54c42e7ea7a765fa7" {
+		t.Errorf("ID was %s, expected 54c42e7ea7a765fa7", contact.ID)
+	}
+	if contact.ExternalID != "123" {
+		t.Errorf("ExternalID was %s, expected 123", contact.ExternalID)
+	}
+}
+
 func TestContactAPIListDefault(t *testing.T) {
 	http := TestContactHTTPClient{fixtureFilename: "fixtures/contacts.json", expectedURI: "/contacts", t: t}
 	api := ContactAPI{httpClient: &http}

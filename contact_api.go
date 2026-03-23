@@ -26,17 +26,36 @@ type ContactAPI struct {
 }
 
 func (api ContactAPI) find(params ContactIdentifiers) (Contact, error) {
-	return unmarshalToContact(api.getClientForFind(params))
-}
-
-func (api ContactAPI) getClientForFind(params ContactIdentifiers) ([]byte, error) {
 	switch {
 	case params.ID != "":
-		return api.httpClient.Get(fmt.Sprintf("/contacts/%s", params.ID), nil)
+		return unmarshalToContact(api.httpClient.Get(fmt.Sprintf("/contacts/%s", params.ID), nil))
 	case params.ExternalID != "":
-		return api.httpClient.Get("/contacts", params)
+		return api.findByExternalID(params.ExternalID)
 	}
-	return nil, errors.New("Missing Contact Identifier")
+	return Contact{}, errors.New("Missing Contact Identifier")
+}
+
+func (api ContactAPI) findByExternalID(externalID string) (Contact, error) {
+	searchQuery := map[string]interface{}{
+		"query": map[string]interface{}{
+			"field":    "external_id",
+			"operator": "=",
+			"value":    externalID,
+		},
+	}
+	data, err := api.httpClient.Post("/contacts/search", &searchQuery)
+	if err != nil {
+		return Contact{}, err
+	}
+	contactList := ContactList{}
+	err = json.Unmarshal(data, &contactList)
+	if err != nil {
+		return Contact{}, err
+	}
+	if len(contactList.Contacts) == 0 {
+		return Contact{}, errors.New("Contact not found")
+	}
+	return contactList.Contacts[0], nil
 }
 
 func (api ContactAPI) list(params contactListParams) (ContactList, error) {
