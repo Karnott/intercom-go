@@ -30,32 +30,9 @@ func (api ContactAPI) find(params ContactIdentifiers) (Contact, error) {
 	case params.ID != "":
 		return unmarshalToContact(api.httpClient.Get(fmt.Sprintf("/contacts/%s", params.ID), nil))
 	case params.ExternalID != "":
-		return api.findByExternalID(params.ExternalID)
+		return unmarshalToContact(api.httpClient.Get(fmt.Sprintf("/contacts/find_by_external_id/%s", params.ExternalID), nil))
 	}
 	return Contact{}, errors.New("Missing Contact Identifier")
-}
-
-func (api ContactAPI) findByExternalID(externalID string) (Contact, error) {
-	searchQuery := map[string]interface{}{
-		"query": map[string]interface{}{
-			"field":    "external_id",
-			"operator": "=",
-			"value":    externalID,
-		},
-	}
-	data, err := api.httpClient.Post("/contacts/search", &searchQuery)
-	if err != nil {
-		return Contact{}, err
-	}
-	contactList := ContactList{}
-	err = json.Unmarshal(data, &contactList)
-	if err != nil {
-		return Contact{}, err
-	}
-	if len(contactList.Contacts) == 0 {
-		return Contact{}, errors.New("Contact not found")
-	}
-	return contactList.Contacts[0], nil
 }
 
 func (api ContactAPI) list(params contactListParams) (ContactList, error) {
@@ -76,7 +53,7 @@ func (api ContactAPI) update(contact *Contact) (Contact, error) {
 	if contact.ID == "" {
 		return Contact{}, errors.New("Missing Contact ID for update")
 	}
-	return unmarshalToContact(api.httpClient.Patch(fmt.Sprintf("/contacts/%s", contact.ID), contact))
+	return unmarshalToContact(api.httpClient.Put(fmt.Sprintf("/contacts/%s", contact.ID), contact))
 }
 
 type mergeRequest struct {

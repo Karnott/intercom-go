@@ -27,7 +27,7 @@ func TestContactAPIFind(t *testing.T) {
 }
 
 func TestContactAPIFindByExternalID(t *testing.T) {
-	http := TestContactHTTPClient{fixtureFilename: "fixtures/contacts.json", expectedURI: "/contacts/search", t: t}
+	http := TestContactHTTPClient{fixtureFilename: "fixtures/contact.json", expectedURI: "/contacts/find_by_external_id/123", t: t}
 	api := ContactAPI{httpClient: &http}
 	contact, err := api.find(ContactIdentifiers{ExternalID: "123"})
 	if err != nil {
@@ -150,6 +150,13 @@ func (t *TestContactHTTPClient) Get(uri string, queryParams interface{}) ([]byte
 }
 
 func (t *TestContactHTTPClient) Post(uri string, body interface{}) ([]byte, error) {
+	if t.expectedURI != uri {
+		t.t.Errorf("Wrong endpoint called: %s, expected %s", uri, t.expectedURI)
+	}
+	return ioutil.ReadFile(t.fixtureFilename)
+}
+
+func (t *TestContactHTTPClient) Put(uri string, body interface{}) ([]byte, error) {
 	if t.expectedURI != uri {
 		t.t.Errorf("Wrong endpoint called: %s, expected %s", uri, t.expectedURI)
 	}

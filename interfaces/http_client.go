@@ -16,6 +16,7 @@ const apiVersion = "2.15"
 type HTTPClient interface {
 	Get(string, interface{}) ([]byte, error)
 	Post(string, interface{}) ([]byte, error)
+	Put(string, interface{}) ([]byte, error)
 	Patch(string, interface{}) ([]byte, error)
 	Delete(string, interface{}) ([]byte, error)
 }
@@ -70,6 +71,10 @@ func (c IntercomHTTPClient) Get(url string, queryParams interface{}) ([]byte, er
 func addQueryParams(req *http.Request, params interface{}) {
 	v, _ := query.Values(params)
 	req.URL.RawQuery = v.Encode()
+}
+
+func (c IntercomHTTPClient) Put(url string, body interface{}) ([]byte, error) {
+	return c.postOrPatch("PUT", url, body)
 }
 
 func (c IntercomHTTPClient) Patch(url string, body interface{}) ([]byte, error) {
