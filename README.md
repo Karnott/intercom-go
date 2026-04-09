@@ -5,7 +5,7 @@ Thin client for the [Intercom](https://www.intercom.io) API (v2.15).
 ## Install
 
 ```
-go get github.com/karnott/intercom-go
+go get github.com/karnott/intercom-go/v2
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ go get github.com/karnott/intercom-go
 
 ```go
 import (
-	intercom "github.com/karnott/intercom-go"
+	intercom "github.com/karnott/intercom-go/v2"
 )
 
 ic := intercom.NewClient("your_access_token")

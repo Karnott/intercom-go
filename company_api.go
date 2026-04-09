@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/karnott/intercom-go/interfaces"
+	"github.com/karnott/intercom-go/v2/interfaces"
 )
 
 // CompanyRepository defines the interface for working with Companies through the API.

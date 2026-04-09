@@ -1,6 +1,6 @@
 package intercom
 
-import "github.com/karnott/intercom-go/interfaces"
+import "github.com/karnott/intercom-go/v2/interfaces"
 
 // EventRepository defines the interface for working with Events through the API.
 type EventRepository interface {

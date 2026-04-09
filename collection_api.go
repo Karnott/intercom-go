@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/karnott/intercom-go/interfaces"
+	"github.com/karnott/intercom-go/v2/interfaces"
 )
 
 // CollectionRepository defines the interface for working with Collections through the API.

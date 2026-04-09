@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/karnott/intercom-go/interfaces"
+	"github.com/karnott/intercom-go/v2/interfaces"
 )
 
 // ArticleRepository defines the interface for working with Articles through the API.

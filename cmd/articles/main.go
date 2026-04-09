@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	intercom "github.com/karnott/intercom-go"
+	intercom "github.com/karnott/intercom-go/v2"
 )
 
 type ExportArticle struct {
