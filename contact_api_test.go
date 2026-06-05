@@ -133,12 +133,44 @@ func TestContactAPIDelete(t *testing.T) {
 	}
 }
 
+func TestContactAPIAttachCompany(t *testing.T) {
+	http := TestContactHTTPClient{fixtureFilename: "fixtures/company.json", expectedURI: "/contacts/54c42e7ea7a765fa7/companies", t: t}
+	api := ContactAPI{httpClient: &http}
+	company, err := api.attachCompany("54c42e7ea7a765fa7", "54c42ed71623d8caa")
+	if err != nil {
+		t.Errorf("Error attaching company %s", err)
+	}
+	if company.ID != "54c42ed71623d8caa" {
+		t.Errorf("ID was %s, expected 54c42ed71623d8caa", company.ID)
+	}
+	req, ok := http.lastBody.(*attachCompanyRequest)
+	if !ok {
+		t.Fatalf("expected body of type *attachCompanyRequest, got %T", http.lastBody)
+	}
+	if req.ID != "54c42ed71623d8caa" {
+		t.Errorf("body id was %s, expected 54c42ed71623d8caa", req.ID)
+	}
+}
+
+func TestContactAPIDetachCompany(t *testing.T) {
+	http := TestContactHTTPClient{fixtureFilename: "fixtures/company.json", expectedURI: "/contacts/54c42e7ea7a765fa7/companies/54c42ed71623d8caa", t: t}
+	api := ContactAPI{httpClient: &http}
+	company, err := api.detachCompany("54c42e7ea7a765fa7", "54c42ed71623d8caa")
+	if err != nil {
+		t.Errorf("Error detaching company %s", err)
+	}
+	if company.ID != "54c42ed71623d8caa" {
+		t.Errorf("ID was %s, expected 54c42ed71623d8caa", company.ID)
+	}
+}
+
 type TestContactHTTPClient struct {
 	TestHTTPClient
 	t               *testing.T
 	fixtureFilename string
 	expectedURI     string
 	lastQueryParams interface{}
+	lastBody        interface{}
 }
 
 func (t *TestContactHTTPClient) Get(uri string, queryParams interface{}) ([]byte, error) {
@@ -153,6 +185,7 @@ func (t *TestContactHTTPClient) Post(uri string, body interface{}) ([]byte, erro
 	if t.expectedURI != uri {
 		t.t.Errorf("Wrong endpoint called: %s, expected %s", uri, t.expectedURI)
 	}
+	t.lastBody = body
 	return ioutil.ReadFile(t.fixtureFilename)
 }
 
