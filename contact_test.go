@@ -84,6 +84,22 @@ func TestContactDelete(t *testing.T) {
 	}
 }
 
+func TestContactAttachCompany(t *testing.T) {
+	contactService := ContactService{Repository: TestContactAPI{t: t}}
+	company, _ := contactService.AttachCompany("contact123", "company456")
+	if company.ID != "company456" {
+		t.Errorf("expected attached company to have ID company456, got %s", company.ID)
+	}
+}
+
+func TestContactDetachCompany(t *testing.T) {
+	contactService := ContactService{Repository: TestContactAPI{t: t}}
+	company, _ := contactService.DetachCompany("contact123", "company456")
+	if company.ID != "company456" {
+		t.Errorf("expected detached company to have ID company456, got %s", company.ID)
+	}
+}
+
 func TestContactMessageAddress(t *testing.T) {
 	contact := Contact{ID: "abc123", Email: "some@email.com"}
 	address := contact.MessageAddress()
@@ -132,4 +148,12 @@ func (t TestContactAPI) unarchive(id string) (Contact, error) {
 
 func (t TestContactAPI) delete(id string) (Contact, error) {
 	return Contact{ID: id}, nil
+}
+
+func (t TestContactAPI) attachCompany(contactID, companyID string) (Company, error) {
+	return Company{ID: companyID, CompanyID: "337631"}, nil
+}
+
+func (t TestContactAPI) detachCompany(contactID, companyID string) (Company, error) {
+	return Company{ID: companyID}, nil
 }

@@ -152,6 +152,19 @@ func (c *ContactService) Delete(id string) (Contact, error) {
 	return c.Repository.delete(id)
 }
 
+// AttachCompany attaches a Company to a Contact via POST /contacts/{id}/companies.
+// Both contactID and companyID must be INTERNAL Intercom ids (the values Intercom
+// returns as `id`), not the external external_id / company_id. Returns the company.
+func (c *ContactService) AttachCompany(contactID, companyID string) (Company, error) {
+	return c.Repository.attachCompany(contactID, companyID)
+}
+
+// DetachCompany detaches a Company from a Contact via
+// DELETE /contacts/{id}/companies/{companyID}. Both ids are INTERNAL Intercom ids.
+func (c *ContactService) DetachCompany(contactID, companyID string) (Company, error) {
+	return c.Repository.detachCompany(contactID, companyID)
+}
+
 // MessageAddress gets the address for a Contact in order to message them.
 func (c Contact) MessageAddress() MessageAddress {
 	return MessageAddress{

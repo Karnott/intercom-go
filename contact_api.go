@@ -18,6 +18,8 @@ type ContactRepository interface {
 	archive(id string) (Contact, error)
 	unarchive(id string) (Contact, error)
 	delete(id string) (Contact, error)
+	attachCompany(contactID, companyID string) (Company, error)
+	detachCompany(contactID, companyID string) (Company, error)
 }
 
 // ContactAPI implements ContactRepository
@@ -81,6 +83,33 @@ func (api ContactAPI) delete(id string) (Contact, error) {
 	}
 	err = json.Unmarshal(data, &contact)
 	return contact, err
+}
+
+// attachCompanyRequest is the body sent to POST /contacts/{id}/companies.
+// `id` must be the company's INTERNAL Intercom id (the value Intercom returns
+// as `company.id`), NOT the customer-defined company_id.
+type attachCompanyRequest struct {
+	ID string `json:"id"`
+}
+
+func (api ContactAPI) attachCompany(contactID, companyID string) (Company, error) {
+	company := Company{}
+	data, err := api.httpClient.Post(fmt.Sprintf("/contacts/%s/companies", contactID), &attachCompanyRequest{ID: companyID})
+	if err != nil {
+		return company, err
+	}
+	err = json.Unmarshal(data, &company)
+	return company, err
+}
+
+func (api ContactAPI) detachCompany(contactID, companyID string) (Company, error) {
+	company := Company{}
+	data, err := api.httpClient.Delete(fmt.Sprintf("/contacts/%s/companies/%s", contactID, companyID), nil)
+	if err != nil {
+		return company, err
+	}
+	err = json.Unmarshal(data, &company)
+	return company, err
 }
 
 func unmarshalToContact(data []byte, err error) (Contact, error) {
